@@ -4,6 +4,10 @@ analyzer:
   errors:
     undefined_prefixed_name: ignore
     unsafe_html: ignore
+    unused_element: ignore # mute problem reports
+    todo: ignore # mute problem reports
+    deprecated_member_use: ignore # mute problem reports
+    omit_local_variable_types: ignore # mute problem reports
 linter:
   rules:
     - always_declare_return_types
