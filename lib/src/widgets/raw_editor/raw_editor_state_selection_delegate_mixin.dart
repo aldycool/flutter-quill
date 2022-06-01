@@ -15,7 +15,6 @@ mixin RawEditorStateSelectionDelegateMixin on EditorState
     return widget.controller.plainTextEditingValue;
   }
 
-  @override
   set textEditingValue(TextEditingValue value) {
     final cursorPosition = value.selection.extentOffset;
     final oldText = widget.controller.document.toPlainText();
@@ -71,13 +70,17 @@ mixin RawEditorStateSelectionDelegateMixin on EditorState
 
   @override
   void bringIntoView(TextPosition position) {
-    final localRect = renderEditor.getLocalRectForCaret(position);
-    final targetOffset = _getOffsetToRevealCaret(localRect, position);
+    // Ignore errors if position is invalid (i.e. paste on iOS when editor
+    // has no content and user pasted from toolbar)
+    try {
+      final localRect = renderEditor.getLocalRectForCaret(position);
+      final targetOffset = _getOffsetToRevealCaret(localRect, position);
 
-    if (scrollController.hasClients) {
-      scrollController.jumpTo(targetOffset.offset);
-    }
-    renderEditor.showOnScreen(rect: targetOffset.rect);
+      if (scrollController.hasClients) {
+        scrollController.jumpTo(targetOffset.offset);
+      }
+      renderEditor.showOnScreen(rect: targetOffset.rect);
+    } catch (_) {}
   }
 
   // Finds the closest scroll offset to the current scroll offset that fully
@@ -136,7 +139,7 @@ mixin RawEditorStateSelectionDelegateMixin on EditorState
   void hideToolbar([bool hideHandles = true]) {
     // If the toolbar is currently visible.
     if (selectionOverlay?.toolbar != null) {
-      selectionOverlay?.hideToolbar();
+      hideHandles ? selectionOverlay?.hide() : selectionOverlay?.hideToolbar();
     }
   }
 

@@ -85,6 +85,60 @@ _controller = QuillController(
 The `QuillToolbar` class lets you customise which formatting options are available.
 [Sample Page] provides sample code for advanced usage and configuration.
 
+### Font Size
+Within the editor toolbar, a drop-down with font-sizing capabilities is available. This can be enabled or disabled with `showFontSize`.  
+
+When enabled, the default font-size values can be modified via _optional_ `fontSizeValues`.  `fontSizeValues` accepts a `Map<String, String>` consisting of a `String` title for the font size and a `String` value for the font size.  Example:
+```
+fontSizeValues: const {'Small': '8', 'Medium': '24.5', 'Large': '46'}
+```
+
+Font size can be cleared with a value of `0`, for example: 
+```
+fontSizeValues: const {'Small': '8', 'Medium': '24.5', 'Large': '46', 'Clear': '0'}
+```
+
+### Custom Icons
+You may add custom icons to the _end_ of the toolbar, via the `customIcons` option, which is a `List` of `QuillCustomIcon`.
+
+To add an Icon, we should use a new QuillCustomIcon class
+```
+    QuillCustomIcon(
+        icon:Icons.ac_unit,
+        onTap: () {
+          debugPrint('snowflake');
+        }
+    ),
+```
+
+Each `QuillCustomIcon` is used as part of the `customIcons` option as follows:
+```
+QuillToolbar.basic(
+   (...),
+    customIcons: [
+        QuillCustomIcon(
+            icon:Icons.ac_unit,
+            onTap: () {
+              debugPrint('snowflake1');
+            }
+        ),
+
+        QuillCustomIcon(
+            icon:Icons.ac_unit,
+            onTap: () {
+              debugPrint('snowflake2');
+            }
+        ),
+
+        QuillCustomIcon(
+            icon:Icons.ac_unit,
+            onTap: () {
+              debugPrint('snowflake3');
+            }
+        ),
+    ]
+```                             
+
 ## Web
 
 For web development, use `flutter config --enable-web` for flutter or use [ReactQuill] for React.
@@ -116,7 +170,7 @@ The package offers translations for the quill toolbar and editor, it will follow
 QuillToolbar(locale: Locale('fr'), ...)
 QuillEditor(locale: Locale('fr'), ...)
 ```
-Currently, translations are available for these 17 locales:
+Currently, translations are available for these 19 locales:
 * `Locale('en')`
 * `Locale('ar')`
 * `Locale('de')`
@@ -134,6 +188,8 @@ Currently, translations are available for these 17 locales:
 * `Locale('vi')`
 * `Locale('id')`
 * `Locale('no')`
+* `Locale('fa')`
+* `Locale('hi')`
 
 ### Contributing to translations
 The translation file is located at [lib/src/translations/toolbar.i18n.dart](lib/src/translations/toolbar.i18n.dart). Feel free to contribute your own translations, just copy the English translations map and replace the values with your translations. Then open a pull request so everyone can benefit from your translations!

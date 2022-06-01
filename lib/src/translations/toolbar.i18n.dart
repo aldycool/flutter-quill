@@ -22,6 +22,7 @@ extension Localization on String {
           'Resize': 'Resize',
           'Width': 'Width',
           'Height': 'Height',
+          'Size': 'Size',
         },
         'en_us': {
           'Paste a link': 'Paste a link',
@@ -42,6 +43,7 @@ extension Localization on String {
           'Resize': 'Resize',
           'Width': 'Width',
           'Height': 'Height',
+          'Size': 'Size',
         },
         'ar': {
           'Paste a link': 'نسخ الرابط',
@@ -62,6 +64,7 @@ extension Localization on String {
           'Resize': 'Resize',
           'Width': 'Width',
           'Height': 'Height',
+          'Size': 'Size',
         },
         'da': {
           'Paste a link': 'Indsæt link',
@@ -82,6 +85,7 @@ extension Localization on String {
           'Resize': 'Resize',
           'Width': 'Width',
           'Height': 'Height',
+          'Size': 'Size',
         },
         'de': {
           'Paste a link': 'Link hinzufügen',
@@ -92,17 +96,18 @@ extension Localization on String {
           'Please first select some text to transform into a link.':
               'Markiere bitte zuerst einen Text, um diesen in einen Link zu '
                   'verwandeln.',
-          'Open': 'Offen',
+          'Open': 'Öffnen',
           'Copy': 'Kopieren',
           'Remove': 'Entfernen',
           'Save': 'Speichern',
           'Zoom': 'Zoomen',
-          'Saved': 'Gerettet',
+          'Saved': 'Gespeichert',
           'Text': 'Text',
-          'What is entered is not a link': 'What is entered is not a link',
+          'What is entered is not a link': 'Das eingegebene ist kein Link',
           'Resize': 'Resize',
-          'Width': 'Width',
-          'Height': 'Height',
+          'Width': 'Breite',
+          'Height': 'Höhe',
+          'Size': 'Größe',
         },
         'fr': {
           'Paste a link': 'Coller un lien',
@@ -123,6 +128,7 @@ extension Localization on String {
           'Resize': 'Resize',
           'Width': 'Width',
           'Height': 'Height',
+          'Size': 'Size',
         },
         'zh_CN': {
           'Paste a link': '粘贴链接',
@@ -143,6 +149,7 @@ extension Localization on String {
           'Resize': '调整大小',
           'Width': '宽度',
           'Height': '高度',
+          'Size': '文字大小',
         },
         'ko': {
           'Paste a link': '링크를 붙여넣어 주세요.',
@@ -183,6 +190,7 @@ extension Localization on String {
           'Resize': 'Resize',
           'Width': 'Width',
           'Height': 'Height',
+          'Size': 'Size',
         },
         'es': {
           'Paste a link': 'Pega un enlace',
@@ -204,6 +212,7 @@ extension Localization on String {
           'Resize': 'Resize',
           'Width': 'Width',
           'Height': 'Height',
+          'Size': 'Size',
         },
         'tr': {
           'Paste a link': 'Bağlantıyı Yapıştır',
@@ -224,6 +233,7 @@ extension Localization on String {
           'Resize': 'Resize',
           'Width': 'Width',
           'Height': 'Height',
+          'Size': 'Size',
         },
         'uk': {
           'Paste a link': 'Вставити посилання',
@@ -244,6 +254,7 @@ extension Localization on String {
           'Resize': 'Resize',
           'Width': 'Width',
           'Height': 'Height',
+          'Size': 'Size',
         },
         'pt': {
           'Paste a link': 'Colar um link',
@@ -265,6 +276,7 @@ extension Localization on String {
           'Resize': 'Resize',
           'Width': 'Width',
           'Height': 'Height',
+          'Size': 'Size',
         },
         'pl': {
           'Paste a link': 'Wklej link',
@@ -286,6 +298,7 @@ extension Localization on String {
           'Resize': 'Resize',
           'Width': 'Width',
           'Height': 'Height',
+          'Size': 'Size',
         },
         'vi': {
           'Paste a link': 'Chèn liên kết',
@@ -307,6 +320,7 @@ extension Localization on String {
           'Resize': 'Resize',
           'Width': 'Width',
           'Height': 'Height',
+          'Size': 'Size',
         },
         'ur': {
           'Paste a link': 'لنک پیسٹ کریں',
@@ -327,6 +341,7 @@ extension Localization on String {
           'Resize': 'سائز تبدیل کریں۔',
           'Width': 'چوڑائی',
           'Height': 'اونچائی',
+          'Size': 'Size',
         },
         'id': {
           'Paste a link': 'Tempel tautan',
@@ -347,6 +362,7 @@ extension Localization on String {
           'Resize': 'Ubah Ukuran',
           'Width': 'Lebar',
           'Height': 'Tinggi',
+          'Size': 'Size',
         },
         'no': {
           'Paste a link': 'Lim inn lenke',
@@ -367,6 +383,49 @@ extension Localization on String {
           'Resize': 'Endre størrelse',
           'Width': 'Bredde',
           'Height': 'Høyde',
+          'Size': 'Size',
+        },
+        'fa': {
+          'Paste a link': 'جایگذاری لینک',
+          'Ok': 'اوکی',
+          'Select Color': 'انتخاب رنگ',
+          'Gallery': 'گالری',
+          'Link': 'لینک',
+          'Please first select some text to transform into a link.':
+              'لطفا ابتدا متنی را برای تبدیل به لینک انتخاب کنید.',
+          'Open': 'باز کردن',
+          'Copy': 'کپی',
+          'Remove': 'حذف',
+          'Save': 'ذخیره',
+          'Zoom': 'بزرگنمایی',
+          'Saved': 'ذخیره شد',
+          'Text': 'متن',
+          'What is entered is not a link': 'ورودی وارد شده لینک نمی باشد',
+          'Resize': 'تغییر اندازه',
+          'Width': 'عرض',
+          'Height': 'طول',
+          'Size': 'Size',
+        },
+        'hi': {
+          'Paste a link': 'लिंक पेस्ट करें',
+          'Ok': 'ठीक है',
+          'Select Color': 'रंग चुनें',
+          'Gallery': 'गैलरी',
+          'Link': 'लिंक',
+          'Please first select some text to transform into a link.':
+              'लिंक में बदलने के लिए कृपया पहले कुछ शब्द चुनें।',
+          'Open': 'खोलें',
+          'Copy': 'कॉपी करें',
+          'Remove': 'हटाएं',
+          'Save': 'सुरक्षित करें',
+          'Zoom': 'बड़ा करें',
+          'Saved': 'सुरक्षित कर दिया गया है',
+          'Text': 'शब्द',
+          'What is entered is not a link': 'जो लिखा गया है वह लिंक नहीं है',
+          'Resize': 'आकार बदलें',
+          'Width': 'चौड़ाई',
+          'Height': 'ऊंचाई',
+          'Size': 'Size',
         },
       };
 
