@@ -11,6 +11,7 @@ import 'package:tuple/tuple.dart';
 
 import '../models/documents/document.dart';
 import '../models/documents/nodes/container.dart' as container_node;
+import '../models/documents/nodes/embeddable.dart';
 import '../models/documents/style.dart';
 import '../utils/platform.dart';
 import 'box.dart';
@@ -168,6 +169,7 @@ class QuillEditor extends StatefulWidget {
       this.onSingleLongTapMoveUpdate,
       this.onSingleLongTapEnd,
       this.embedBuilder = defaultEmbedBuilder,
+      this.customElementsEmbedBuilder,
       this.linkActionPickerDelegate = defaultLinkActionPickerDelegate,
       this.customStyleBuilder,
       this.locale,
@@ -180,6 +182,10 @@ class QuillEditor extends StatefulWidget {
     required QuillController controller,
     required bool readOnly,
     Brightness? keyboardAppearance,
+
+    /// The locale to use for the editor toolbar, defaults to system locale
+    /// More at https://github.com/singerdmx/flutter-quill#translation
+    Locale? locale,
   }) {
     return QuillEditor(
       controller: controller,
@@ -191,6 +197,7 @@ class QuillEditor extends StatefulWidget {
       expands: false,
       padding: EdgeInsets.zero,
       keyboardAppearance: keyboardAppearance ?? Brightness.light,
+      locale: locale,
     );
   }
 
@@ -340,6 +347,7 @@ class QuillEditor extends StatefulWidget {
       onSingleLongTapEnd;
 
   final EmbedBuilder embedBuilder;
+  final CustomEmbedBuilder? customElementsEmbedBuilder;
   final CustomStyleBuilder? customStyleBuilder;
 
   /// The locale to use for the editor toolbar, defaults to system locale
@@ -458,18 +466,46 @@ class QuillEditorState extends State<QuillEditor>
       keyboardAppearance: widget.keyboardAppearance,
       enableInteractiveSelection: widget.enableInteractiveSelection,
       scrollPhysics: widget.scrollPhysics,
-      embedBuilder: widget.embedBuilder,
+      embedBuilder: (
+        context,
+        controller,
+        node,
+        readOnly,
+        onVideoInit,
+      ) {
+        final customElementsEmbedBuilder = widget.customElementsEmbedBuilder;
+        final isCustomType = node.value.type == BlockEmbed.customType;
+        if (customElementsEmbedBuilder != null && isCustomType) {
+          return customElementsEmbedBuilder(
+            context,
+            controller,
+            CustomBlockEmbed.fromJsonString(node.value.data),
+            readOnly,
+            onVideoInit,
+          );
+        }
+        return widget.embedBuilder(
+          context,
+          controller,
+          node,
+          readOnly,
+          onVideoInit,
+        );
+      },
       linkActionPickerDelegate: widget.linkActionPickerDelegate,
       customStyleBuilder: widget.customStyleBuilder,
       floatingCursorDisabled: widget.floatingCursorDisabled,
     );
 
     final editor = I18n(
-        initialLocale: widget.locale,
-        child: _selectionGestureDetectorBuilder.build(
-          behavior: HitTestBehavior.translucent,
-          child: child,
-        ));
+      initialLocale: widget.locale,
+      child: selectionEnabled
+          ? _selectionGestureDetectorBuilder.build(
+              behavior: HitTestBehavior.translucent,
+              child: child,
+            )
+          : child,
+    );
 
     if (kIsWeb) {
       // Intercept RawKeyEvent on Web to prevent it from propagating to parents
