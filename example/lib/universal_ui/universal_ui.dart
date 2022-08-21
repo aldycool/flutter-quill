@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:universal_html/html.dart' as html;
+import 'package:youtube_player_flutter_quill/youtube_player_flutter_quill.dart';
 
 import '../widgets/responsive_widget.dart';
 import 'fake_ui.dart' if (dart.library.html) 'real_ui.dart' as ui_instance;
@@ -25,11 +26,20 @@ class UniversalUI {
 
 var ui = UniversalUI();
 
-Widget defaultEmbedBuilderWeb(BuildContext context, QuillController controller,
-    Embed node, bool readOnly) {
+Widget defaultEmbedBuilderWeb(
+  BuildContext context,
+  QuillController controller,
+  Embed node,
+  bool readOnly,
+  void Function(GlobalKey videoContainerKey)? onVideoInit,
+) {
   switch (node.value.type) {
-    case 'image':
+    case BlockEmbed.imageType:
       final imageUrl = node.value.data;
+      if (isImageBase64(imageUrl)) {
+        // TODO: handle imageUrl of base64
+        return const SizedBox();
+      }
       final size = MediaQuery.of(context).size;
       UniversalUI().platformViewRegistry.registerViewFactory(
           imageUrl, (viewId) => html.ImageElement()..src = imageUrl);
@@ -48,7 +58,29 @@ Widget defaultEmbedBuilderWeb(BuildContext context, QuillController controller,
           ),
         ),
       );
+    case BlockEmbed.videoType:
+      var videoUrl = node.value.data;
+      if (videoUrl.contains('youtube.com') || videoUrl.contains('youtu.be')) {
+        final youtubeID = YoutubePlayer.convertUrlToId(videoUrl);
+        if (youtubeID != null) {
+          videoUrl = 'https://www.youtube.com/embed/$youtubeID';
+        }
+      }
 
+      UniversalUI().platformViewRegistry.registerViewFactory(
+          videoUrl,
+          (id) => html.IFrameElement()
+            ..width = MediaQuery.of(context).size.width.toString()
+            ..height = MediaQuery.of(context).size.height.toString()
+            ..src = videoUrl
+            ..style.border = 'none');
+
+      return SizedBox(
+        height: 500,
+        child: HtmlElementView(
+          viewType: videoUrl,
+        ),
+      );
     default:
       throw UnimplementedError(
         'Embeddable type "${node.value.type}" is not supported by default '
