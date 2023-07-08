@@ -3,26 +3,19 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
-import '../../flutter_quill.dart';
+import '../models/documents/attribute.dart';
+import '../models/documents/nodes/leaf.dart';
+import '../utils/platform.dart';
+import 'editor.dart';
+import 'embeds.dart';
 import 'text_selection.dart';
 
-typedef EmbedBuilder = Widget Function(
-  BuildContext context,
-  QuillController controller,
-  Embed node,
-  bool readOnly,
-  void Function(GlobalKey videoContainerKey)? onVideoInit,
-);
-
-typedef CustomEmbedBuilder = Widget Function(
-  BuildContext context,
-  QuillController controller,
-  CustomBlockEmbed block,
-  bool readOnly,
-  void Function(GlobalKey videoContainerKey)? onVideoInit,
-);
+typedef EmbedsBuilder = EmbedBuilder Function(Embed node);
 
 typedef CustomStyleBuilder = TextStyle Function(Attribute attribute);
+
+typedef CustomRecognizerBuilder = GestureRecognizer? Function(
+    Attribute attribute, Leaf leaf);
 
 /// Delegate interface for the [EditorTextSelectionGestureDetectorBuilder].
 ///
@@ -74,7 +67,8 @@ class EditorTextSelectionGestureDetectorBuilder {
   /// Creates a [EditorTextSelectionGestureDetectorBuilder].
   ///
   /// The [delegate] must not be null.
-  EditorTextSelectionGestureDetectorBuilder({required this.delegate});
+  EditorTextSelectionGestureDetectorBuilder(
+      {required this.delegate, this.detectWordBoundary = true});
 
   /// The delegate for this [EditorTextSelectionGestureDetectorBuilder].
   ///
@@ -90,6 +84,8 @@ class EditorTextSelectionGestureDetectorBuilder {
   /// will return true if current [onTapDown] event is triggered by a touch or
   /// a stylus.
   bool shouldShowSelectionToolbar = true;
+
+  bool detectWordBoundary = true;
 
   /// The [State] of the [EditableText] for which the builder will provide a
   /// [EditorTextSelectionGestureDetector].
@@ -120,6 +116,9 @@ class EditorTextSelectionGestureDetectorBuilder {
     // For backwards-compatibility, we treat a null kind the same as touch.
     final kind = details.kind;
     shouldShowSelectionToolbar = kind == null ||
+        kind ==
+            PointerDeviceKind
+                .mouse || // Enable word selection by mouse double tap
         kind == PointerDeviceKind.touch ||
         kind == PointerDeviceKind.stylus;
   }
@@ -184,6 +183,15 @@ class EditorTextSelectionGestureDetectorBuilder {
   void onSingleTapUp(TapUpDetails details) {
     if (delegate.selectionEnabled) {
       renderEditor!.selectWordEdge(SelectionChangedCause.tap);
+    }
+  }
+
+  /// onSingleTapUp for mouse right click
+  @protected
+  void onSecondarySingleTapUp(TapUpDetails details) {
+    // added to show toolbar by right click
+    if (shouldShowSelectionToolbar) {
+      editor!.showToolbar();
     }
   }
 
@@ -304,7 +312,8 @@ class EditorTextSelectionGestureDetectorBuilder {
   ///  which triggers this callback./lib/src/material/text_field.dart
   @protected
   void onDragSelectionUpdate(
-      DragStartDetails startDetails, DragUpdateDetails updateDetails) {
+      //DragStartDetails startDetails,
+      DragUpdateDetails updateDetails) {
     renderEditor!.extendSelection(updateDetails.globalPosition,
         cause: SelectionChangedCause.drag);
   }
@@ -320,6 +329,12 @@ class EditorTextSelectionGestureDetectorBuilder {
   @protected
   void onDragSelectionEnd(DragEndDetails details) {
     renderEditor!.handleDragEnd(details);
+    if (isDesktop() &&
+        delegate.selectionEnabled &&
+        shouldShowSelectionToolbar) {
+      // added to show selection copy/paste toolbar after drag to select
+      editor!.showToolbar();
+    }
   }
 
   /// Returns a [EditorTextSelectionGestureDetector] configured with
@@ -327,23 +342,28 @@ class EditorTextSelectionGestureDetectorBuilder {
   ///
   /// The [child] or its subtree should contain [EditableText].
   Widget build(
-      {required HitTestBehavior behavior, required Widget child, Key? key}) {
+      {required HitTestBehavior behavior,
+      required Widget child,
+      Key? key,
+      bool detectWordBoundary = true}) {
     return EditorTextSelectionGestureDetector(
-      key: key,
-      onTapDown: onTapDown,
-      onForcePressStart: delegate.forcePressEnabled ? onForcePressStart : null,
-      onForcePressEnd: delegate.forcePressEnabled ? onForcePressEnd : null,
-      onSingleTapUp: onSingleTapUp,
-      onSingleTapCancel: onSingleTapCancel,
-      onSingleLongTapStart: onSingleLongTapStart,
-      onSingleLongTapMoveUpdate: onSingleLongTapMoveUpdate,
-      onSingleLongTapEnd: onSingleLongTapEnd,
-      onDoubleTapDown: onDoubleTapDown,
-      onDragSelectionStart: onDragSelectionStart,
-      onDragSelectionUpdate: onDragSelectionUpdate,
-      onDragSelectionEnd: onDragSelectionEnd,
-      behavior: behavior,
-      child: child,
-    );
+        key: key,
+        onTapDown: onTapDown,
+        onForcePressStart:
+            delegate.forcePressEnabled ? onForcePressStart : null,
+        onForcePressEnd: delegate.forcePressEnabled ? onForcePressEnd : null,
+        onSingleTapUp: onSingleTapUp,
+        onSingleTapCancel: onSingleTapCancel,
+        onSingleLongTapStart: onSingleLongTapStart,
+        onSingleLongTapMoveUpdate: onSingleLongTapMoveUpdate,
+        onSingleLongTapEnd: onSingleLongTapEnd,
+        onDoubleTapDown: onDoubleTapDown,
+        onSecondarySingleTapUp: onSecondarySingleTapUp,
+        onDragSelectionStart: onDragSelectionStart,
+        onDragSelectionUpdate: onDragSelectionUpdate,
+        onDragSelectionEnd: onDragSelectionEnd,
+        behavior: behavior,
+        detectWordBoundary: detectWordBoundary,
+        child: child);
   }
 }

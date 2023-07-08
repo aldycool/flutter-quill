@@ -1,44 +1,30 @@
 import 'package:flutter/material.dart';
-
-import '../../models/documents/nodes/embeddable.dart';
-import '../../models/themes/quill_dialog_theme.dart';
-import '../../models/themes/quill_icon_theme.dart';
-import '../controller.dart';
-import '../toolbar.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 
 class FormulaButton extends StatelessWidget {
   const FormulaButton({
     required this.icon,
     required this.controller,
     this.iconSize = kDefaultIconSize,
-    this.onImagePickCallback,
     this.fillColor,
-    this.filePickImpl,
-    this.webImagePickImpl,
-    this.mediaPickSettingSelector,
     this.iconTheme,
     this.dialogTheme,
+    this.tooltip,
     Key? key,
   }) : super(key: key);
 
   final IconData icon;
+
   final double iconSize;
 
   final Color? fillColor;
 
   final QuillController controller;
 
-  final OnImagePickCallback? onImagePickCallback;
-
-  final WebImagePickImpl? webImagePickImpl;
-
-  final FilePickImpl? filePickImpl;
-
-  final MediaPickSettingSelector? mediaPickSettingSelector;
-
   final QuillIconTheme? iconTheme;
 
   final QuillDialogTheme? dialogTheme;
+  final String? tooltip;
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +36,7 @@ class FormulaButton extends StatelessWidget {
 
     return QuillIconButton(
       icon: Icon(icon, size: iconSize, color: iconColor),
+      tooltip: tooltip,
       highlightElevation: 0,
       hoverElevation: 0,
       size: iconSize * 1.77,

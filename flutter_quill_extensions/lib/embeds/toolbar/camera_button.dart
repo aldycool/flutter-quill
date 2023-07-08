@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/flutter_quill.dart' hide Text;
+import 'package:flutter_quill/translations.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../../models/themes/quill_icon_theme.dart';
-import '../../translations/toolbar.i18n.dart';
-import '../controller.dart';
-import '../toolbar.dart';
+import '../embed_types.dart';
+import 'image_video_utils.dart';
 
 class CameraButton extends StatelessWidget {
   const CameraButton({
@@ -19,6 +19,7 @@ class CameraButton extends StatelessWidget {
     this.webVideoPickImpl,
     this.cameraPickSettingSelector,
     this.iconTheme,
+    this.tooltip,
     Key? key,
   }) : super(key: key);
 
@@ -42,6 +43,7 @@ class CameraButton extends StatelessWidget {
   final MediaPickSettingSelector? cameraPickSettingSelector;
 
   final QuillIconTheme? iconTheme;
+  final String? tooltip;
 
   @override
   Widget build(BuildContext context) {
@@ -53,6 +55,7 @@ class CameraButton extends StatelessWidget {
 
     return QuillIconButton(
       icon: Icon(icon, size: iconSize, color: iconColor),
+      tooltip: tooltip,
       highlightElevation: 0,
       hoverElevation: 0,
       size: iconSize * 1.77,

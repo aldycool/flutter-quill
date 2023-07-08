@@ -2,12 +2,10 @@ import 'dart:convert';
 import 'dart:io' as io;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:photo_view/photo_view.dart';
-import 'package:string_validator/string_validator.dart';
 
-import '../../models/documents/attribute.dart';
-import '../../models/documents/style.dart';
-import '../controller.dart';
+import '../utils.dart';
 
 const List<String> imageFileExtensions = [
   '.jpeg',
@@ -19,15 +17,11 @@ const List<String> imageFileExtensions = [
   '.heic'
 ];
 
-bool isImageBase64(String imageUrl) {
-  return !imageUrl.startsWith('http') && isBase64(imageUrl);
-}
-
 String getImageStyleString(QuillController controller) {
   final String? s = controller
       .getAllSelectionStyles()
       .firstWhere((s) => s.attributes.containsKey(Attribute.style.key),
-          orElse: () => Style())
+          orElse: Style.new)
       .attributes[Attribute.style.key]
       ?.value;
   return s ?? '';
