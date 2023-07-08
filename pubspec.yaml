@@ -24,6 +24,7 @@ dependencies:
   device_info_plus: ^9.0.0
   platform: ^3.1.0
   pasteboard: ^0.2.0
+  tuple: ^2.0.0
 
   # Dependencies for testing utilities
   flutter_test:
