@@ -89,6 +89,8 @@ mixin RawEditorStateTextInputClientMixin on EditorState
           allowedMimeTypes: widget.config.contentInsertionConfiguration == null
               ? const <String>[]
               : widget.config.contentInsertionConfiguration!.allowedMimeTypes,
+          viewId: View.of(context)
+              .viewId, //https://github.com/singerdmx/flutter-quill/pull/2579, if merged, this code can be removed
         ),
       );
 

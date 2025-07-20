@@ -1,5 +1,11 @@
 include: package:flutter_lints/flutter.yaml
 
+analyzer: 
+  errors: 
+    todo: ignore
+    unnecessary_import: ignore
+    omit_local_variable_types: ignore
+
 linter:
   rules:
     always_declare_return_types: true
