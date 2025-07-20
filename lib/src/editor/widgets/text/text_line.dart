@@ -6,6 +6,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:tuple/tuple.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../flutter_quill.dart';
@@ -55,6 +56,201 @@ class TextLine extends StatefulWidget {
 
   @override
   State<TextLine> createState() => _TextLineState();
+
+  // The goal is to calculate a `Line`'s `TextSpan` and `align`. We use the
+  // single below method to achieve this, which takes multiple internal methods
+  // from the private `_TextLineState` methods.
+  static Tuple2<InlineSpan, TextAlign> getTextSpanAndTextAlign(
+    Line line,
+    DefaultStyles styles,
+  ) {
+    assert(!line.hasEmbed);
+    final lineStyle = _getLineStyle(styles, line, null);
+    final textSpan = _buildTextSpan(styles, line.children, lineStyle, line);
+    final textAlign = _getTextAlign(line);
+    return Tuple2(textSpan, textAlign);
+  }
+
+  static TextStyle _getLineStyle(DefaultStyles defaultStyles, Line line,
+      CustomStyleBuilder? customStyleBuilder) {
+    var textStyle = const TextStyle();
+
+    if (line.style.containsKey(Attribute.placeholder.key)) {
+      return defaultStyles.placeHolder!.style;
+    }
+
+    final header = line.style.attributes[Attribute.header.key];
+    final m = <Attribute, TextStyle>{
+      Attribute.h1: defaultStyles.h1!.style,
+      Attribute.h2: defaultStyles.h2!.style,
+      Attribute.h3: defaultStyles.h3!.style,
+    };
+
+    textStyle = textStyle.merge(m[header] ?? defaultStyles.paragraph!.style);
+
+    // Only retrieve exclusive block format for the line style purpose
+    Attribute? block;
+    line.style.getBlocksExceptHeader().forEach((key, value) {
+      if (Attribute.exclusiveBlockKeys.contains(key)) {
+        block = value;
+      }
+    });
+
+    TextStyle? toMerge;
+    if (block == Attribute.blockQuote) {
+      toMerge = defaultStyles.quote!.style;
+    } else if (block == Attribute.codeBlock) {
+      toMerge = defaultStyles.code!.style;
+    } else if (block == Attribute.list) {
+      toMerge = defaultStyles.lists!.style;
+    }
+
+    textStyle = textStyle.merge(toMerge);
+
+    return textStyle;
+  }
+
+  static TextSpan _buildTextSpan(DefaultStyles defaultStyles,
+      LinkedList<Node> nodes, TextStyle lineStyle, Line line) {
+    if (nodes.isEmpty && kIsWeb) {
+      nodes = LinkedList<Node>()..add(leaf.QuillText('\u{200B}'));
+    }
+    final children = nodes
+        .map((node) => _getTextSpanFromNode(defaultStyles, node, line.style))
+        .toList(growable: false);
+
+    return TextSpan(children: children, style: lineStyle);
+  }
+
+  static TextSpan _getTextSpanFromNode(
+      DefaultStyles defaultStyles, Node node, Style lineStyle) {
+    final textNode = node as leaf.QuillText;
+    final nodeStyle = textNode.style;
+
+    return TextSpan(
+      text: textNode.value,
+      style: _getInlineTextStyle(
+          textNode, defaultStyles, nodeStyle, lineStyle, false),
+    );
+  }
+
+  static TextStyle _getInlineTextStyle(
+      leaf.QuillText textNode,
+      DefaultStyles defaultStyles,
+      Style nodeStyle,
+      Style lineStyle,
+      bool isLink) {
+    var res = const TextStyle(); // This is inline text style
+    final color = textNode.style.attributes[Attribute.color.key];
+
+    <String, TextStyle?>{
+      Attribute.bold.key: defaultStyles.bold,
+      Attribute.italic.key: defaultStyles.italic,
+      Attribute.small.key: defaultStyles.small,
+      Attribute.link.key: defaultStyles.link,
+      Attribute.underline.key: defaultStyles.underline,
+      Attribute.strikeThrough.key: defaultStyles.strikeThrough,
+    }.forEach((k, s) {
+      if (nodeStyle.values.any((v) => v.key == k)) {
+        if (k == Attribute.underline.key || k == Attribute.strikeThrough.key) {
+          var textColor = defaultStyles.color;
+          if (color?.value is String) {
+            textColor = stringToColor(color?.value);
+          }
+          res = _merge(res.copyWith(decorationColor: textColor),
+              s!.copyWith(decorationColor: textColor));
+        } else if (k == Attribute.link.key && !isLink) {
+          // null value for link should be ignored
+          // i.e. nodeStyle.attributes[Attribute.link.key]!.value == null
+        } else {
+          res = _merge(res, s!);
+        }
+      }
+    });
+
+    if (nodeStyle.containsKey(Attribute.inlineCode.key)) {
+      res = _merge(res, defaultStyles.inlineCode!.styleFor(lineStyle));
+    }
+
+    final font = textNode.style.attributes[Attribute.font.key];
+    if (font != null && font.value != null) {
+      res = res.merge(TextStyle(fontFamily: font.value));
+    }
+
+    final size = textNode.style.attributes[Attribute.size.key];
+    if (size != null && size.value != null) {
+      switch (size.value) {
+        case 'small':
+          res = res.merge(defaultStyles.sizeSmall);
+          break;
+        case 'large':
+          res = res.merge(defaultStyles.sizeLarge);
+          break;
+        case 'huge':
+          res = res.merge(defaultStyles.sizeHuge);
+          break;
+        default:
+          double? fontSize;
+          if (size.value is double) {
+            fontSize = size.value;
+          } else if (size.value is int) {
+            fontSize = size.value.toDouble();
+          } else if (size.value is String) {
+            fontSize = double.tryParse(size.value);
+          }
+          if (fontSize != null) {
+            res = res.merge(TextStyle(fontSize: fontSize));
+          } else {
+            throw 'Invalid size ${size.value}';
+          }
+      }
+    }
+
+    if (color != null && color.value != null) {
+      var textColor = defaultStyles.color;
+      if (color.value is String) {
+        textColor = stringToColor(color.value);
+      }
+      if (textColor != null) {
+        res = res.merge(TextStyle(color: textColor));
+      }
+    }
+
+    final background = textNode.style.attributes[Attribute.background.key];
+    if (background != null && background.value != null) {
+      final backgroundColor = stringToColor(background.value);
+      res = res.merge(TextStyle(backgroundColor: backgroundColor));
+    }
+
+    return res;
+  }
+
+  static TextStyle _merge(TextStyle a, TextStyle b) {
+    final decorations = <TextDecoration?>[];
+    if (a.decoration != null) {
+      decorations.add(a.decoration);
+    }
+    if (b.decoration != null) {
+      decorations.add(b.decoration);
+    }
+    return a.merge(b).apply(
+        decoration: TextDecoration.combine(
+            List.castFrom<dynamic, TextDecoration>(decorations)));
+  }
+
+  static TextAlign _getTextAlign(Line line) {
+    final alignment = line.style.attributes[Attribute.align.key];
+    if (alignment == Attribute.leftAlignment) {
+      return TextAlign.start;
+    } else if (alignment == Attribute.centerAlignment) {
+      return TextAlign.center;
+    } else if (alignment == Attribute.rightAlignment) {
+      return TextAlign.end;
+    } else if (alignment == Attribute.justifyAlignment) {
+      return TextAlign.justify;
+    }
+    return TextAlign.start;
+  }
 }
 
 class _TextLineState extends State<TextLine> {

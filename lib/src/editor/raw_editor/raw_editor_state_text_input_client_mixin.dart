@@ -103,12 +103,12 @@ mixin RawEditorStateTextInputClientMixin on EditorState
       if (_lastKnownRemoteTextEditingValue != null) {
         if (_lastKnownRemoteTextEditingValue!.selection.end >
             _lastKnownRemoteTextEditingValue!.text.length) {
-          _lastKnownRemoteTextEditingValue = _lastKnownRemoteTextEditingValue!
-              .copyWith(
-                selection: _lastKnownRemoteTextEditingValue!.selection.copyWith(
-                  extentOffset: _lastKnownRemoteTextEditingValue!.text.length,
-                ),
-              );
+          _lastKnownRemoteTextEditingValue =
+              _lastKnownRemoteTextEditingValue!.copyWith(
+            selection: _lastKnownRemoteTextEditingValue!.selection.copyWith(
+              extentOffset: _lastKnownRemoteTextEditingValue!.text.length,
+            ),
+          );
         }
       }
       _textInputConnection!.setEditingState(_lastKnownRemoteTextEditingValue!);
@@ -117,8 +117,7 @@ mixin RawEditorStateTextInputClientMixin on EditorState
   }
 
   void _updateComposingRectIfNeeded() {
-    final composingRange =
-        _lastKnownRemoteTextEditingValue?.composing ??
+    final composingRange = _lastKnownRemoteTextEditingValue?.composing ??
         textEditingValue.composing;
     if (hasConnection) {
       assert(mounted);
@@ -301,8 +300,7 @@ mixin RawEditorStateTextInputClientMixin on EditorState
           currentTextPosition,
         );
 
-        _lastBoundedOffset =
-            _startCaretRect!.center -
+        _lastBoundedOffset = _startCaretRect!.center -
             _floatingCursorOffset(currentTextPosition);
         _lastTextPosition = currentTextPosition;
         renderEditor.setFloatingCursor(
@@ -370,7 +368,7 @@ mixin RawEditorStateTextInputClientMixin on EditorState
   void onFloatingCursorResetTick() {
     final finalPosition =
         renderEditor.getLocalRectForCaret(_lastTextPosition!).centerLeft -
-        _floatingCursorOffset(_lastTextPosition!);
+            _floatingCursorOffset(_lastTextPosition!);
     if (floatingCursorResetController.isCompleted) {
       renderEditor.setFloatingCursor(
         FloatingCursorDragState.End,
