@@ -114,9 +114,7 @@ abstract class FlutterQuillLocalizations {
 
   static FlutterQuillLocalizations? of(BuildContext context) {
     return Localizations.of<FlutterQuillLocalizations>(
-      context,
-      FlutterQuillLocalizations,
-    );
+        context, FlutterQuillLocalizations);
   }
 
   static const LocalizationsDelegate<FlutterQuillLocalizations> delegate =
@@ -195,7 +193,7 @@ abstract class FlutterQuillLocalizations {
     Locale('zh'),
     Locale('zh', 'CN'),
     Locale('zh', 'HK'),
-    Locale('zh', 'TW'),
+    Locale('zh', 'TW')
   ];
 
   /// No description provided for @pasteLink.
@@ -842,8 +840,7 @@ class _FlutterQuillLocalizationsDelegate
   @override
   Future<FlutterQuillLocalizations> load(Locale locale) {
     return SynchronousFuture<FlutterQuillLocalizations>(
-      lookupFlutterQuillLocalizations(locale),
-    );
+        lookupFlutterQuillLocalizations(locale));
   }
 
   @override
@@ -1049,9 +1046,8 @@ FlutterQuillLocalizations lookupFlutterQuillLocalizations(Locale locale) {
   }
 
   throw FlutterError(
-    'FlutterQuillLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-    'an issue with the localizations generation tool. Please file an issue '
-    'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.',
-  );
+      'FlutterQuillLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+      'an issue with the localizations generation tool. Please file an issue '
+      'on GitHub with a reproducible sample app and the gen-l10n configuration '
+      'that was used.');
 }
