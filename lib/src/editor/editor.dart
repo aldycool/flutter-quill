@@ -23,6 +23,8 @@ import 'widgets/box.dart';
 import 'widgets/cursor.dart';
 import 'widgets/delegate.dart';
 import 'widgets/float_cursor.dart';
+import 'widgets/text/text_block.dart';
+import 'widgets/text/text_line.dart';
 import 'widgets/text/text_selection.dart';
 
 /// Base interface for editable render objects.
@@ -1628,6 +1630,99 @@ class RenderEditor extends RenderEditableContainerBox
   void systemFontsDidChange() {
     super.systemFontsDidChange();
     markNeedsLayout();
+  }
+
+  List<TextBox> getBoxesForSelection(TextSelection selection) {
+    final result = <TextBox>[];
+    if (selection.isCollapsed) return result;
+
+    var child = firstChild;
+
+    while (child != null) {
+      // ─────────────────────────────
+      // CASE 1: flat text line
+      // ─────────────────────────────
+      if (child is RenderEditableTextLine) {
+        _collectLineBoxes(
+          line: child,
+          selection: selection,
+          parentOffset: Offset.zero,
+          out: result,
+        );
+      }
+
+      // ─────────────────────────────
+      // CASE 2: block → lines
+      // ─────────────────────────────
+      else if (child is RenderEditableTextBlock) {
+        final blockOffset = (child.parentData as BoxParentData).offset;
+        var line = child.firstChild;
+
+        while (line != null) {
+          if (line is RenderEditableTextLine) {
+            _collectLineBoxes(
+              line: line,
+              selection: selection,
+              parentOffset: blockOffset,
+              out: result,
+            );
+          }
+          line = child.childAfter(line);
+        }
+      }
+
+      child = childAfter(child);
+    }
+
+    return result;
+  }
+
+  void _collectLineBoxes({
+    required RenderEditableTextLine line,
+    required TextSelection selection,
+    required Offset parentOffset,
+    required List<TextBox> out,
+  }) {
+    final node = line.container;
+
+    // DOCUMENT-SPACE OFFSETS
+    final lineStart = node.documentOffset;
+    final lineEnd = lineStart + node.length;
+
+    // Skip non-intersecting lines
+    if (selection.end <= lineStart || selection.start >= lineEnd) {
+      return;
+    }
+
+    // Convert document → line-local selection
+    final localSelection = TextSelection(
+      baseOffset: (selection.start - lineStart).clamp(0, node.length),
+      extentOffset: (selection.end - lineStart).clamp(0, node.length),
+    );
+
+    // Find RenderContentProxyBox (paragraph / embed)
+    RenderContentProxyBox? proxy;
+    line.visitChildren((child) {
+      if (child is RenderContentProxyBox) {
+        proxy = child;
+      }
+    });
+    if (proxy == null) return;
+
+    final boxes = proxy!.getBoxesForSelection(localSelection);
+    final lineOffset = (line.parentData as BoxParentData).offset;
+
+    for (final box in boxes) {
+      out.add(
+        TextBox.fromLTRBD(
+          box.left + parentOffset.dx + lineOffset.dx,
+          box.top + parentOffset.dy + lineOffset.dy,
+          box.right + parentOffset.dx + lineOffset.dx,
+          box.bottom + parentOffset.dy + lineOffset.dy,
+          box.direction,
+        ),
+      );
+    }
   }
 }
 
